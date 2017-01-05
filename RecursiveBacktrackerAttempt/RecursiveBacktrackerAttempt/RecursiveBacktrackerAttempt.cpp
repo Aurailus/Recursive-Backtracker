@@ -9,20 +9,16 @@ int main()
 {
 	const int mapWidth = 20, mapHeight = 10;
 
-	char topBorder[mapHeight][mapWidth];
-	char rightBorder[mapHeight][mapWidth];
+	char sideBorder[mapHeight][mapWidth];
 	char bottomBorder[mapHeight][mapWidth];
-	char leftBorder[mapHeight][mapWidth];
 	char tiles[mapHeight][mapWidth];
     
 	for (int i = 0; i < mapHeight; i++)
 	{
 		for (int j = 0; j < mapWidth; j++)
 		{
-			topBorder[i][j] = '_';
-			rightBorder[i][j] = '|';
-			bottomBorder[i][j] = '_';
-			leftBorder[i][j] = '|';
+			sideBorder[i][j] = '|';
+			bottomBorder[i][j] = '-';
 			tiles[i][j] = '0';
 		}
 	}
@@ -32,23 +28,21 @@ int main()
 		std::this_thread::sleep_for(std::chrono::milliseconds(500));
 		system("cls");
 
+		cout << "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*" << endl; //top border visual fix
 		for (int i = 0; i < mapHeight; i++)
 		{
+			cout << "|"; //left border visual fix
 			for (int j = 0; j < mapWidth; j++)
 			{
-				cout << "." << topBorder[i][j] << ".";
+				cout << tiles[i][j] << sideBorder[i][j];
 			}
-			cout << endl;
+			cout << endl << "*"; //left border visual fix
 			for (int j = 0; j < mapWidth; j++)
 			{
-				cout << leftBorder[i][j] << tiles[i][j] << rightBorder[i][j];
+				cout << bottomBorder[i][j] << "*";
 			}
 			cout << endl;
-			for (int j = 0; j < mapWidth; j++)
-			{
-				cout << "." << bottomBorder[i][j] << ".";
-			}
-			cout << endl;
+ 
 		}
 	}
 }
