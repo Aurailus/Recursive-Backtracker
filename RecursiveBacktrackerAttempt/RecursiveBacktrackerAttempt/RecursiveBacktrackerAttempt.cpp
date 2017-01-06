@@ -11,6 +11,7 @@ const int mapWidth = 59, mapHeight = 14;
 char playerChar = '@', discoveredChar = '.', undiscoveredChar = '#';
 
 void draw(int x, int y, char sideBorder[mapHeight][mapWidth], char bottomBorder[mapHeight][mapWidth], char tiles[mapHeight][mapWidth]);
+vector<char> getNeighbors(int x, int y, char tiles[mapHeight][mapWidth]);
 
 int main()
 {
@@ -64,59 +65,34 @@ int main()
 
 		tiles[y][x] = discoveredChar;
 
-		bool right = false, left = false, top = false, bottom = false;
-
-		if (x < mapWidth - 1) if (tiles[y][x + 1] == undiscoveredChar) { right = true; }   //find if there's undiscovered tiles
-		if (y < mapHeight - 1) if (tiles[y + 1][x] == undiscoveredChar) { bottom = true; } //and then set the boolean to the
-		if (x > 0) if (tiles[y][x - 1] == undiscoveredChar) { left = true; }               //correct value
-		if (y > 0) if (tiles[y - 1][x] == undiscoveredChar) { top = true; }
-
-		if (top == true || left == true || bottom == true || right == true) {
-			bool moved = false;
-			do {
-				int dir = rand() %  4; //value from 0 - 3
-				switch (dir)
-				{
-				case 0:
-					if (right == true)
-					{
-						x++;
-						sideBorder[y][x-1] = ' ';
-						moved = true;
-					}
-					break;
-				case 1:
-					if (bottom == true)
-					{
-						y++;
-						bottomBorder[y-1][x] = ' ';
-						moved = true;
-					}
-					break;
-				case 2:
-					if (left == true)
-					{
-						x--;
-						sideBorder[y][x] = ' ';
-						moved = true;
-					}
-					break;
-				case 3:
-					if (top == true)
-					{
-						y--;
-						bottomBorder[y][x] = ' ';
-						moved = true;
-					}
-					break;
-				}
-			} while (moved == false);
-
+		vector<char> dirs = getNeighbors(x, y, tiles);
+		switch (dirs[rand() % (dirs.size())])
+		{
+		case 'r':
+			x++;
+			sideBorder[y][x-1] = ' ';
 			xhistory.push_back(x);
 			yhistory.push_back(y);
-		}
-		else
-		{
+			break;
+		case 'd':
+			y++;
+			bottomBorder[y-1][x] = ' ';
+			xhistory.push_back(x);
+			yhistory.push_back(y);
+			break;
+		case 'l':
+			x--;
+			sideBorder[y][x] = ' ';
+			xhistory.push_back(x);
+			yhistory.push_back(y);
+			break;
+		case 'u':
+			y--;
+			bottomBorder[y][x] = ' ';
+			xhistory.push_back(x);
+			yhistory.push_back(y);
+			break;
+		case 'n': //no neighbors
 			if (xhistory.size() > 0)
 			{
 				x = xhistory.back();
@@ -125,6 +101,7 @@ int main()
 				yhistory.pop_back();
 			}
 			else finished = 1;
+			break;
 		}
 
 		if (drawgeneration) draw(x, y, sideBorder, bottomBorder, tiles);
@@ -163,4 +140,17 @@ void draw(int x, int y, char sideBorder[mapHeight][mapWidth], char bottomBorder[
 		}
 		cout << endl;
 	}
+}
+
+vector<char> getNeighbors(int x, int y, char tiles[mapHeight][mapWidth]) {
+	vector<char> neighbors;
+	
+	if (x < mapWidth - 1) if (tiles[y][x + 1] == undiscoveredChar) neighbors.push_back('r');
+	if (y < mapHeight - 1) if (tiles[y + 1][x] == undiscoveredChar) neighbors.push_back('d');
+	if (x > 0) if (tiles[y][x - 1] == undiscoveredChar) neighbors.push_back('l');
+	if (y > 0) if (tiles[y - 1][x] == undiscoveredChar) neighbors.push_back('u');
+	
+	if (neighbors.size() == 0) neighbors.push_back('n');
+
+	return neighbors;
 }
