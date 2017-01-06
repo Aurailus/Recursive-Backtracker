@@ -66,33 +66,32 @@ int main()
 		tiles[y][x] = discoveredChar;
 
 		vector<char> dirs = getNeighbors(x, y, tiles);
-		switch (dirs[rand() % (dirs.size())])
+		if (dirs[0] != 'n')
 		{
-		case 'r':
-			x++;
-			sideBorder[y][x-1] = ' ';
+			switch (dirs[rand() % (dirs.size())])
+			{
+			case 'r':
+				x++;
+				sideBorder[y][x - 1] = ' ';
+				break;
+			case 'd':
+				y++;
+				bottomBorder[y - 1][x] = ' ';
+				break;
+			case 'l':
+				x--;
+				sideBorder[y][x] = ' ';
+				break;
+			case 'u':
+				y--;
+				bottomBorder[y][x] = ' ';
+				break;
+			}
 			xhistory.push_back(x);
 			yhistory.push_back(y);
-			break;
-		case 'd':
-			y++;
-			bottomBorder[y-1][x] = ' ';
-			xhistory.push_back(x);
-			yhistory.push_back(y);
-			break;
-		case 'l':
-			x--;
-			sideBorder[y][x] = ' ';
-			xhistory.push_back(x);
-			yhistory.push_back(y);
-			break;
-		case 'u':
-			y--;
-			bottomBorder[y][x] = ' ';
-			xhistory.push_back(x);
-			yhistory.push_back(y);
-			break;
-		case 'n': //no neighbors
+		}
+		else
+		{
 			if (xhistory.size() > 0)
 			{
 				x = xhistory.back();
@@ -101,15 +100,13 @@ int main()
 				yhistory.pop_back();
 			}
 			else finished = 1;
-			break;
 		}
-
 		if (drawgeneration) draw(x, y, sideBorder, bottomBorder, tiles);
 	}
 	
 	draw(x, y, sideBorder, bottomBorder, tiles);
 	std::system("pause");
-	return 0;
+	return 0; //Ending
 }
 
 void draw(int x, int y, char sideBorder[mapHeight][mapWidth], char bottomBorder[mapHeight][mapWidth], char tiles[mapHeight][mapWidth]) {
