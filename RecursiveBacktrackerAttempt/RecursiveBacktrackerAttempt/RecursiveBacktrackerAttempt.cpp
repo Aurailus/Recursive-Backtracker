@@ -4,18 +4,21 @@
 #include <thread>  //for pausing
 #include <cstdlib> //random values
 #include <vector>  //backtracking
-#include <conio.h>
 
 using namespace std;
+
+const int mapWidth = 59, mapHeight = 14;
+char playerChar = '@', discoveredChar = '.', undiscoveredChar = '#';
+
+void draw(int x, int y, char sideBorder[mapHeight][mapWidth], char bottomBorder[mapHeight][mapWidth], char tiles[mapHeight][mapWidth]);
 
 int main()
 {
 	srand(time(NULL)); //init random seed
-	const int mapWidth = 20, mapHeight = 10;
+	bool finished = false, drawgeneration = false;
 
 	char sideBorder[mapHeight][mapWidth], bottomBorder[mapHeight][mapWidth], tiles[mapHeight][mapWidth];
-	char playerChar = '@', discoveredChar = '.', undiscoveredChar = '#';
-	int x = 10, y = 5;
+	int x = floor(mapWidth/2), y = floor(mapHeight/2), waitTime = 0;
 	vector<int> xhistory(1, x);
 	vector<int> yhistory(1, y);
     
@@ -30,9 +33,34 @@ int main()
 		}
 	}
 
-	while (true)
+	char answer;
+	cout << "Draw during generation? (y/n): ";
+	cin >> answer;
+	cin.ignore();
+	switch (answer)
 	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(350)); //pause to account for CMD visual stutter
+	case('y'):
+	case('Y'):
+		drawgeneration = true;
+		break;
+	case('n'):
+	case('N'):
+	default:
+		drawgeneration = false;
+		break;
+	}
+	if (drawgeneration)
+	{
+		cout << "Millisecond wait-time between frames? (0-1000): ";
+		cin >> waitTime;
+		if (waitTime > 1000) waitTime = 1000;
+		if (waitTime < 0) waitTime = 0;
+		cin.ignore();
+	}
+
+	while (!finished)
+	{
+		if (waitTime > 0) std::this_thread::sleep_for(std::chrono::milliseconds(waitTime)); //pause to account for CMD visual stutter
 
 		tiles[y][x] = discoveredChar;
 
@@ -89,31 +117,50 @@ int main()
 		}
 		else
 		{
-			x = xhistory.back();
-			y = yhistory.back();
-			xhistory.pop_back();
-			yhistory.pop_back();
+			if (xhistory.size() > 0)
+			{
+				x = xhistory.back();
+				y = yhistory.back();
+				xhistory.pop_back();
+				yhistory.pop_back();
+			}
+			else finished = 1;
 		}
 
-		system("cls");
+		if (drawgeneration) draw(x, y, sideBorder, bottomBorder, tiles);
+	}
+	
+	draw(x, y, sideBorder, bottomBorder, tiles);
+	std::system("pause");
+	return 0;
+}
 
-		cout << "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*" << endl; //top border visual fix
-		for (int i = 0; i < mapHeight; i++) //display board
+void draw(int x, int y, char sideBorder[mapHeight][mapWidth], char bottomBorder[mapHeight][mapWidth], char tiles[mapHeight][mapWidth]) {
+
+	std::system("cls");
+
+	for (int i = 0; i < mapWidth; i++) //Top border visual fix
+	{
+		cout << "+-";
+	}
+	cout << "+" << endl;
+
+	for (int i = 0; i < mapHeight; i++) //display board
+	{
+		cout << "|"; //left border visual fix
+		for (int j = 0; j < mapWidth; j++)
 		{
-			cout << "|"; //left border visual fix
-			for (int j = 0; j < mapWidth; j++)
-			{
-				if (x == j && i == y) cout << playerChar; //display current tile
-				else cout << tiles[i][j]; //else display tile state
+			if (x == j && i == y) cout << playerChar; //display current tile
+			else cout << tiles[i][j]; //else display tile state
 
-				cout << sideBorder[i][j];
-			}
-			cout << endl << "*"; //left border visual fix
-			for (int j = 0; j < mapWidth; j++)
-			{
-				cout << bottomBorder[i][j] << "*";
-			}
-			cout << endl;
+			cout << sideBorder[i][j];
 		}
+		cout << endl << "+"; //left border visual fix
+
+		for (int j = 0; j < mapWidth; j++)
+		{
+			cout << bottomBorder[i][j] << "+";
+		}
+		cout << endl;
 	}
 }
